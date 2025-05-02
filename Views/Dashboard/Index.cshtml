@@ -1,0 +1,76 @@
+﻿@* ================================================= *@
+@* VentasApp/Views/Dashboard/Index.cshtml          *@
+@* ================================================= *@
+@{
+    ViewData["Title"] = "Dashboard Administrador";
+    // El layout se aplicará automáticamente desde /Views/Shared/_Layout.cshtml
+}
+
+<div class="container mt-4">
+    <h1 class="display-4">@ViewData["Title"]</h1>
+    <p class="lead">Bienvenido al panel de administración. Desde aquí puede acceder a las diferentes secciones de gestión del sistema.</p>
+    <hr class="my-4">
+
+    @* Los mensajes de TempData ya se muestran en _Layout.cshtml *@
+
+    <div class="row">
+        @* Tarjeta para Gestión de Usuarios *@
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Gestión de Usuarios</h5>
+                    <p class="card-text flex-grow-1">Crear, editar, eliminar y visualizar los usuarios del sistema y sus roles.</p>
+                    @* Este enlace debe apuntar al Index del UsuarioController *@
+                    <a asp-controller="Usuario" asp-action="Index" class="btn btn-primary mt-auto">Gestionar Usuarios</a>
+                </div>
+            </div>
+        </div>
+
+        @* Tarjeta para Gestión de Productos *@
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Gestión de Productos</h5>
+                    <p class="card-text flex-grow-1">Administrar el catálogo de productos, precios y existencias.</p>
+                    @* Este enlace debe apuntar al Index del ProductoController *@
+                    <a asp-controller="Producto" asp-action="Index" class="btn btn-info mt-auto text-white">Gestionar Productos</a>
+                </div>
+            </div>
+        </div>
+
+        @* Tarjeta para Gestión de Clientes *@
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Gestión de Clientes</h5>
+                    <p class="card-text flex-grow-1">Administrar la información de contacto y direcciones de los clientes.</p>
+                    @* Este enlace debe apuntar al Index del ClienteController *@
+                    <a asp-controller="Cliente" asp-action="Index" class="btn btn-warning mt-auto text-dark">Gestionar Clientes</a>
+                </div>
+            </div>
+        </div>
+
+        @* Tarjeta para Ventas y Reportes *@
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Ventas y Reportes</h5>
+                    <p class="card-text flex-grow-1">Visualizar el historial de ventas, aplicar filtros y generar reportes en PDF/Excel.</p>
+                    @* Este enlace debe apuntar al Index del VentaController *@
+                    <a asp-controller="Venta" asp-action="Index" class="btn btn-success mt-auto">Ver Ventas y Reportes</a>
+                </div>
+            </div>
+        </div>
+
+        @* Espacio para futuras tarjetas... *@
+
+    </div> @* Fin de .row *@
+</div> @* Fin de .container *@
+
+@section Scripts {
+@* Sección para scripts específicos del Dashboard si fueran necesarios en el futuro *@
+    <script>
+        // Puedes poner código JavaScript aquí si lo necesitas más adelante
+        // console.log("Vista del Dashboard cargada.");
+    </script>
+}

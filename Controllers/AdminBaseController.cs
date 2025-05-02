@@ -20,7 +20,7 @@ namespace VentasApp.Controllers
 
             // Verificar si el rol es "Administrador" (ignorando mayúsculas/minúsculas).
             // Si userRole es null (no hay sesión o no se guardó el rol), la condición será falsa.
-            if (userRole?.Equals("Administrador", StringComparison.OrdinalIgnoreCase) != true)
+            if (userRole?.Equals("Admin", StringComparison.OrdinalIgnoreCase) != true)
             {
                 // Si no es administrador:
                 // 1. Registrar la denegación de acceso (opcional).
