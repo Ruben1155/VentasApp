@@ -1,0 +1,44 @@
+﻿@* ================================================== *@
+@* VentasApp/Views/Usuario/Delete.cshtml              *@
+@* ================================================== *@
+@model VentasApp.Models.Usuario
+
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h3 class="text-danger">¿Estás seguro de que quieres eliminar este usuario?</h3>
+<p class="text-danger">Esta acción no se puede deshacer.</p>
+
+@if (Model != null)
+{
+    <div>
+        <h4>Usuario</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Nombre)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Nombre)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Apellido)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Apellido)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Correo)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Correo)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Rol)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Rol)</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger">Eliminar Definitivamente</button> |
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">No se encontraron detalles para este usuario.</div>
+    <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+}

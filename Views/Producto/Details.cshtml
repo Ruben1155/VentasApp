@@ -1,0 +1,41 @@
+﻿@* ================================================== *@
+@* VentasApp/Views/Producto/Details.cshtml            *@
+@* ================================================== *@
+@model VentasApp.Models.Producto
+
+@{
+    ViewData["Title"] = "Detalles del Producto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (Model != null)
+{
+    <div>
+        <h4>Producto</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Nombre)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Nombre)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Descripcion)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Precio)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Precio)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Existencias)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Existencias)</dd>
+        </dl>
+    </div>
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a> |
+        <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">No se encontraron detalles para este producto.</div>
+    <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+}

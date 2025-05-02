@@ -1,0 +1,238 @@
+﻿@model VentasApp.Models.VentaCreateViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering; // Para SelectList
+
+@{
+    ViewData["Title"] = "Registrar Nueva Venta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+
+<form asp-action="Create" method="post" id="ventaForm">
+    @Html.AntiForgeryToken()
+    @* Mostrar errores generales del modelo *@
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    @* Selección de Cliente *@
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="IdCliente" class="form-label"></label>
+            <select asp-for="IdCliente" class="form-select" asp-items="Model.ClientesList">
+                <option value="">-- Seleccione Cliente --</option>
+            </select>
+            <span asp-validation-for="IdCliente" class="text-danger"></span>
+        </div>
+    </div>
+
+    @* Sección para añadir Productos *@
+    <fieldset class="border p-3 mb-3">
+        <legend class="w-auto px-2 fs-6">Agregar Productos</legend>
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label for="productoSelect" class="form-label">Producto:</label>
+                @* Dropdown para seleccionar producto a añadir *@
+                <select id="productoSelect" class="form-select" asp-items="Model.ProductosList">
+                    <option value="">-- Seleccione Producto --</option>
+                </select>
+                @* Almacenar precio en atributo data-*@
+                <input type="hidden" id="productoPrecio" />
+            </div>
+            <div class="col-md-3">
+                <label for="cantidadInput" class="form-label">Cantidad:</label>
+                <input type="number" id="cantidadInput" class="form-control" value="1" min="1" />
+            </div>
+            <div class="col-md-auto">
+                <button type="button" id="btnAddProducto" class="btn btn-success w-100">Agregar</button>
+            </div>
+        </div>
+    </fieldset>
+
+    @* Tabla para mostrar los detalles añadidos *@
+    <h4 class="mt-4">Detalle de Venta</h4>
+    <table class="table table-sm table-bordered" id="tablaDetalles">
+        <thead class="table-light">
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Las filas se añadirán aquí con JavaScript *@
+            @* Añadir filas existentes si el modelo viene con errores y detalles previos *@
+            @if (Model.Detalles != null)
+            {
+                for (int i = 0; i < Model.Detalles.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            @* Input oculto para enviar el IdProducto al controlador *@
+                            <input type="hidden" name="Detalles[@i].IdProducto" value="@Model.Detalles[i].IdProducto" />
+                            @* Input oculto para enviar el PrecioUnitario (podría recalcularse en servidor) *@
+                            <input type="hidden" name="Detalles[@i].PrecioUnitario" value="@Model.Detalles[i].PrecioUnitario" />
+                            @Model.Detalles[i].NombreProducto
+                        </td>
+                        <td>
+                            @* Input oculto para enviar la Cantidad *@
+                            <input type="hidden" name="Detalles[@i].Cantidad" value="@Model.Detalles[i].Cantidad" />
+                            @Model.Detalles[i].Cantidad
+                        </td>
+                        <td>@Model.Detalles[i].PrecioUnitario.ToString("C")</td>
+                        <td>@Model.Detalles[i].Subtotal.ToString("C")</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm btnRemoveProducto">Quitar</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-end fw-bold">TOTAL:</td>
+                <td id="ventaTotal" class="fw-bold">@Model.Detalles.Sum(d => d.Subtotal).ToString("C")</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+    @* Mensaje de error específico para la lista de detalles *@
+    <span asp-validation-for="Detalles" class="text-danger"></span>
+
+
+    @* Botones finales *@
+    <div class="form-group mt-4">
+        <button type="submit" class="btn btn-primary">Registrar Venta</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    @* Pasar el JSON de precios desde ViewBag a una variable JavaScript *@
+    <script>
+        const productosInfo = JSON.parse('@Html.Raw(ViewBag.ProductosInfoJson ?? "{}")');
+        // Ejemplo: productosInfo será como { "1": 15.50, "3": 22.00, ... }
+    </script>
+
+    <script>
+        // Esperar a que el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const productoSelect = document.getElementById('productoSelect');
+            const cantidadInput = document.getElementById('cantidadInput');
+            const btnAddProducto = document.getElementById('btnAddProducto');
+            const tablaDetallesBody = document.getElementById('tablaDetalles').querySelector('tbody');
+            const ventaTotalElement = document.getElementById('ventaTotal');
+            // const productoPrecioInput = document.getElementById('productoPrecio'); // Ya no necesitamos este input oculto
+
+            // --- Agregar Producto a la Tabla ---
+            btnAddProducto.addEventListener('click', function () {
+                const productoId = productoSelect.value;
+                const productoNombre = productoSelect.options[productoSelect.selectedIndex].text;
+                const cantidad = parseInt(cantidadInput.value);
+
+                // --- OBTENER PRECIO REAL desde la variable JS ---
+                let precioUnitario = 0;
+                if (productosInfo && productosInfo[productoId]) {
+                    precioUnitario = parseFloat(productosInfo[productoId]);
+                } else {
+                    console.error("Precio no encontrado para producto ID:", productoId);
+                    // Podrías mostrar un error al usuario o no permitir añadir
+                }
+                // ---------------------------------------------
+
+                if (!productoId || cantidad <= 0 || isNaN(precioUnitario) || precioUnitario <= 0) {
+                    alert('Seleccione un producto válido e ingrese una cantidad positiva.');
+                    return;
+                }
+
+                // Verificar si el producto ya está en la tabla
+                const existe = Array.from(tablaDetallesBody.querySelectorAll('input[name$=".IdProducto"]'))
+                                  .some(input => input.value === productoId);
+                if (existe) {
+                    alert('Este producto ya ha sido agregado.');
+                    return;
+                }
+
+                const subtotal = cantidad * precioUnitario;
+                const index = tablaDetallesBody.rows.length; // Índice para los names de los inputs
+
+                // Crear la nueva fila HTML (usando el precio real)
+                const newRow = `
+                    <tr>
+                        <td>
+                            <input type="hidden" name="Detalles[${index}].IdProducto" value="${productoId}" />
+        @* Ya no necesitamos enviar el precio unitario, la API puede obtenerlo si es necesario,
+                                   o podemos confiar en el cálculo del subtotal y total.
+                                   Si la API lo requiere, puedes dejar el input oculto:
+                                <input type="hidden" name="Detalles[${index}].PrecioUnitario" value="${precioUnitario.toFixed(2)}" />
+                                *@
+                            ${productoNombre}
+                        </td>
+                        <td>
+                            <input type="hidden" name="Detalles[${index}].Cantidad" value="${cantidad}" />
+                            ${cantidad}
+                        </td>
+                        <td class="precio-unitario">${precioUnitario.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' })}</td>
+                        <td class="subtotal" data-subtotal="${subtotal.toFixed(2)}">${subtotal.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' })}</td> @* Añadido data-subtotal *@
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm btnRemoveProducto">Quitar</button>
+                        </td>
+                    </tr>
+                `;
+
+                tablaDetallesBody.insertAdjacentHTML('beforeend', newRow);
+                actualizarTotal();
+                resetAddProductoForm();
+            });
+
+            // --- Quitar Producto de la Tabla ---
+            tablaDetallesBody.addEventListener('click', function (e) {
+                if (e.target && e.target.classList.contains('btnRemoveProducto')) {
+                    e.target.closest('tr').remove();
+                    actualizarIndices();
+                    actualizarTotal();
+                }
+            });
+
+            // --- Actualizar Total ---
+            function actualizarTotal() {
+                let total = 0;
+                tablaDetallesBody.querySelectorAll('tr').forEach(row => {
+                    // Leer el subtotal desde el atributo data-subtotal
+                    const subtotalVal = parseFloat(row.querySelector('.subtotal')?.dataset.subtotal || 0);
+                    total += subtotalVal;
+                });
+                ventaTotalElement.textContent = total.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' });
+            }
+
+            // --- Reajustar Índices de los Inputs ---
+             function actualizarIndices() {
+                tablaDetallesBody.querySelectorAll('tr').forEach((row, newIndex) => {
+                    row.querySelectorAll('input[type="hidden"]').forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            const newName = name.replace(/\[\d+\]/, `[${newIndex}]`);
+                            input.setAttribute('name', newName);
+                        }
+                    });
+                });
+            }
+
+            // --- Resetear Formulario de Añadir Producto ---
+            function resetAddProductoForm() {
+                 productoSelect.selectedIndex = 0;
+                 cantidadInput.value = 1;
+            }
+
+            // Calcular total inicial si la página carga con detalles
+            actualizarTotal();
+
+        });
+    </script>
+    }

@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Acceso Denegado";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Usa el layout principal
+}
+
+<header class="text-center">
+    <h1 class="display-4 text-danger mt-5">@ViewData["Title"]</h1>
+    <p class="lead text-danger mt-3">No tienes los permisos necesarios para acceder a esta página o recurso.</p>
+</header>
+
+@* Mostrar mensaje de error adicional si viene en TempData *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning text-center col-md-6 mx-auto">@TempData["ErrorMessage"]</div>
+}
+
+<div class="text-center mt-4">
+    <p>
+        Si crees que esto es un error, por favor contacta al administrador del sistema.
+    </p>
+    <a asp-action="Index" asp-controller="Home" class="btn btn-primary">Volver al Inicio</a>
+    @* Podrías añadir un botón de Logout aquí también si el usuario está logueado *@
+    @*
+    @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+    @if (HttpContextAccessor.HttpContext?.Session.GetInt32("UserId").HasValue ?? false)
+    {
+        <form asp-area="" asp-controller="Home" asp-action="Logout" method="post" class="d-inline">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-link text-secondary">Cerrar Sesión</button>
+        </form>
+    }
+    *@
+</div>

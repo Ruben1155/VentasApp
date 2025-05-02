@@ -1,0 +1,118 @@
+﻿@model IEnumerable<VentasApp.Models.Venta>
+@using Microsoft.AspNetCore.Mvc.Rendering;
+@using System.Linq;
+
+@{
+    ViewData["Title"] = "Historial de Ventas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    // Recuperar filtros actuales para los inputs del formulario y botones de exportación
+    string? currentFechaInicio = ViewData["CurrentFechaInicio"] as string;
+    string? currentFechaFin = ViewData["CurrentFechaFin"] as string;
+    int? currentClienteFilter = ViewData["CurrentClienteFilter"] as int?; // Convertir a int?
+    SelectList? clientesFilterList = ViewBag.ClientesFilterList as SelectList;
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@* Formulario de Filtros *@
+<form asp-action="Index" method="get" class="mb-4 p-3 border rounded bg-light">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label for="fechaInicio" class="form-label">Fecha Inicio:</label>
+            <input type="date" id="fechaInicio" name="fechaInicio" value="@currentFechaInicio" class="form-control form-control-sm" />
+        </div>
+        <div class="col-md-3">
+            <label for="fechaFin" class="form-label">Fecha Fin:</label>
+            <input type="date" id="fechaFin" name="fechaFin" value="@currentFechaFin" class="form-control form-control-sm" />
+        </div>
+        <div class="col-md-4">
+            <label for="idClienteFilter" class="form-label">Cliente:</label>
+            @* Usar el SelectList pasado desde el controlador *@
+            <select id="idClienteFilter" name="idClienteFilter" class="form-select form-select-sm" asp-items="clientesFilterList">
+                <option value="">-- Todos los Clientes --</option>
+            </select>
+        </div>
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-info btn-sm w-100">Filtrar</button>
+        </div>
+        <div class="col-md-auto">
+            <a asp-action="Index" class="btn btn-secondary btn-sm w-100">Limpiar</a>
+        </div>
+    </div>
+</form>
+
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Registrar Nueva Venta</a>
+    @* --- BOTONES DE EXPORTACIÓN AÑADIDOS --- *@
+    @* Pasan los filtros actuales como parámetros de ruta a las acciones de exportación *@
+    <a asp-action="ExportToPdf"
+       asp-route-fechaInicio="@currentFechaInicio"
+       asp-route-fechaFin="@currentFechaFin"
+       asp-route-idClienteFilter="@currentClienteFilter"
+       class="btn btn-outline-danger" target="_blank">Exportar a PDF</a>
+    <a asp-action="ExportToExcel"
+       asp-route-fechaInicio="@currentFechaInicio"
+       asp-route-fechaFin="@currentFechaFin"
+       asp-route-idClienteFilter="@currentClienteFilter"
+       class="btn btn-outline-success">Exportar a Excel</a>
+    @* -------------------------------------- *@
+</p>
+
+@* Mostrar mensajes de éxito o error desde TempData *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID Venta</th>
+                @* Usar expresiones lambda con el modelo para los encabezados *@
+                <th>@(Html.DisplayNameFor(model => model.FirstOrDefault().FechaVenta))</th>
+                <th>@(Html.DisplayNameFor(model => model.FirstOrDefault().NombreCliente))</th>
+                <th>@(Html.DisplayNameFor(model => model.FirstOrDefault().NombreVendedor))</th>
+                <th>@(Html.DisplayNameFor(model => model.FirstOrDefault().MontoTotal))</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.Id)</td>
+                        <td>@item.FechaVenta.ToString("g")</td> @* Formato corto de fecha y hora *@
+                        <td>@Html.DisplayFor(modelItem => item.NombreCliente) (@Html.DisplayFor(modelItem => item.IdCliente))</td>
+                        <td>@Html.DisplayFor(modelItem => item.NombreVendedor) (@Html.DisplayFor(modelItem => item.IdUsuario))</td>
+                        <td>@item.MontoTotal.ToString("C")</td> @* Formato Moneda *@
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Ver Detalles</a>
+                            @* Podrías añadir botones para Cancelar/Eliminar si implementas esa lógica *@
+                            @* <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Cancelar</a> *@
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center">No se encontraron ventas con los filtros aplicados.</td> @* Ajustado colspan *@
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

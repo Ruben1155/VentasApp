@@ -1,0 +1,60 @@
+﻿@* ================================================== *@
+@* VentasApp/Views/Cliente/Create.cshtml              *@
+@* ================================================== *@
+@model VentasApp.Models.Cliente
+
+@{
+    ViewData["Title"] = "Crear Cliente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Nuevo Cliente</h4>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        @* Hacer el formulario un poco más ancho *@
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div> @* Mostrar errores no asociados a un campo específico *@
+
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Apellido" class="form-label"></label>
+                <input asp-for="Apellido" class="form-control" />
+                <span asp-validation-for="Apellido" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Correo" class="form-label"></label>
+                <input asp-for="Correo" class="form-control" type="email" />
+                <span asp-validation-for="Correo" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Telefono" class="form-label"></label>
+                <input asp-for="Telefono" class="form-control" type="tel" />
+                <span asp-validation-for="Telefono" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Direccion" class="form-label"></label>
+                <textarea asp-for="Direccion" class="form-control" rows="3"></textarea> @* Usar textarea para dirección *@
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+
+            @Html.AntiForgeryToken()
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">Crear Cliente</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

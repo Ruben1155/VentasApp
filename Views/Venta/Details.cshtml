@@ -1,0 +1,81 @@
+﻿@model VentasApp.Models.Venta
+
+@{
+    ViewData["Title"] = $"Detalles de Venta #{Model?.Id}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (Model != null)
+{
+    <div>
+        <h4>Información General</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">ID Venta</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Id)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FechaVenta)</dt>
+            <dd class="col-sm-9">@Model.FechaVenta.ToString("F")</dd> @* Formato largo *@
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NombreCliente)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.NombreCliente) (ID: @Html.DisplayFor(model => model.IdCliente))</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NombreVendedor)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.NombreVendedor) (ID: @Html.DisplayFor(model => model.IdUsuario))</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MontoTotal)</dt>
+            <dd class="col-sm-9 fw-bold">@Model.MontoTotal.ToString("C")</dd> @* Formato de moneda *@
+        </dl>
+    </div>
+
+    <div class="mt-4">
+        <h4>Detalles de Productos</h4>
+        <hr />
+        @if (Model.Detalles != null && Model.Detalles.Any())
+        {
+            <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => model.Detalles.First().NombreProducto)</th>
+                        <th>@Html.DisplayNameFor(model => model.Detalles.First().Cantidad)</th>
+                        <th>@Html.DisplayNameFor(model => model.Detalles.First().PrecioUnitario)</th>
+                        <th>@Html.DisplayNameFor(model => model.Detalles.First().Subtotal)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Detalles)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.NombreProducto) (ID: @Html.DisplayFor(modelItem => item.IdProducto))</td>
+                            <td>@Html.DisplayFor(modelItem => item.Cantidad)</td>
+                            <td>@item.PrecioUnitario.ToString("C")</td>
+                            <td>@item.Subtotal.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                        <td class="fw-bold">@Model.MontoTotal.ToString("C")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">No se encontraron detalles para esta venta.</div>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+        @* Podría haber un botón para imprimir/exportar esta venta específica *@
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">No se encontraron datos para esta venta.</div>
+    <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+}
