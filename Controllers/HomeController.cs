@@ -165,7 +165,7 @@ namespace VentasApp.Controllers
                     // Rol se asignará 'Vendedor' por defecto en la API si no se envía
                     // o puedes asignarlo aquí si RegisterViewModel tuviera el campo:
                     // Rol = model.TipoUsuario ?? "Vendedor",
-                    Rol = "Admin", // Asignar rol por defecto aquí para claridad
+                    Rol = "Vendedor", // Asignar rol por defecto aquí para claridad
                     Clave = model.Clave // Pasar la contraseña introducida
                 };
 
